@@ -13,7 +13,7 @@ class Profile(models.Model):
         return f'Профиль {self.user.username}'
 
 @receiver(post_save, sender=User)
-def create_user_profile(instance, created):
+def create_user_profile(sender, instance, created, **kwargs):
     """Автоматическое создание профиля при регистрации"""
     if created:
         Profile.objects.create(user=instance)

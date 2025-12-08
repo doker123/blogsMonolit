@@ -1,0 +1,61 @@
+{% extends 'blog/base.html' %}
+{% block title %}Главная — Микроблог{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Последние посты</h2>
+
+{% for post in page_obj %}
+<div class="card post-card">
+     <div class="card-body">
+    <a href="{% url 'post_detail' post.id %}" class="text-decoration-none text-dark">
+        <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title mb-1">
+                <span class="fw-bold">{{ post.author.username }}</span>
+            </h5>
+            <small class="text-muted">{{ post.created_at|date:"d.m.Y H:i" }}</small>
+        </div>
+        <p class="card-text mt-2">{{ post.content }}</p>
+    </a>
+
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <div>
+            <form method="post" action="{% url 'post_like' post.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn {% if user in post.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %} btn-sm">
+                    ❤️ {{ post.likes.count }}
+                </button>
+            </form>
+            <span class="ms-2 text-muted">{{ post.comment_count }} 💬</span>
+        </div>
+        {% if user == post.author %}
+        <div>
+            <a href="{% url 'post_edit' post.id %}" class="btn btn-sm btn-outline-secondary">Изменить</a>
+            <a href="{% url 'post_delete' post.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% empty %}
+<p class="text-center text-muted">Пока нет постов.</p>
+{% endfor %}
+
+<!-- Пагинация -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Посты">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">Первая</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a></li>
+        {% endif %}
+
+        <li class="page-item disabled"><span class="page-link">Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

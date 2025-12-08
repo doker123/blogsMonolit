@@ -1,0 +1,18 @@
+{% extends 'blog/base.html' %}
+{% block title %}Удалить профиль — Микроблог{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="alert alert-danger">
+            <h4>Вы уверены, что хотите удалить свой профиль?</h4>
+            <p>Все ваши посты и комментарии будут безвозвратно удалены.</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Да, удалить</button>
+                <a href="{% url 'profile' %}" class="btn btn-secondary">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

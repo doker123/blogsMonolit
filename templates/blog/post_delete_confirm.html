@@ -1,0 +1,18 @@
+{% extends 'blog/base.html' %}
+{% block title %}Удалить пост — Микроблог{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="alert alert-warning">
+            <h4>Вы уверены, что хотите удалить этот пост?</h4>
+            <p class="mt-2"><strong>«{{ post.content|truncatechars:100 }}»</strong></p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Да, удалить</button>
+                <a href="{% url 'post_detail' post.id %}" class="btn btn-secondary">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

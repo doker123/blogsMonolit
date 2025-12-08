@@ -3,23 +3,36 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Profile, Post, Comment
 
+
 class UserRegisterForm(UserCreationForm):
-    """Форма регистрации нового пользователя"""
+    """Форма регистрации нового пользователя с аватаром"""
     email = forms.EmailField(required=True, label='Электронная почта')
     first_name = forms.CharField(max_length=30, required=False, label='Имя')
     last_name = forms.CharField(max_length=30, required=False, label='Фамилия')
+    avatar = forms.ImageField(
+        label='Аватар',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'})
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'avatar']
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data.get('first_name', '')
         user.last_name = self.cleaned_data.get('last_name', '')
+
         if commit:
             user.save()
+            # Создаём или получаем профиль и сохраняем аватар
+            profile, created = Profile.objects.get_or_create(user=user)
+            avatar = self.cleaned_data.get('avatar')
+            if avatar:
+                profile.avatar = avatar
+                profile.save()
         return user
 
 

@@ -1,0 +1,75 @@
+<!-- blog/templates/blog/post_detail.html -->
+{% extends 'blog/base.html' %}
+{% block title %}Пост — Микроблог{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Карточка поста -->
+        <div class="card post-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title mb-1">{{ post.author.username }}</h5>
+                    <small class="text-muted">{{ post.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                <p class="card-text mt-3">{{ post.content }}</p>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="d-flex gap-3 align-items-center" >
+                      <form method="post" action="{% url 'post_like' post.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn {% if user in post.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                            ❤️ {{ post.likes.count }}
+                        </button>
+                    </form>
+                    <span>{{ post.comment_count }} 💬</span>
+                    </div>
+                    {% if user == post.author %}
+                    <div>
+                        <a href="{% url 'post_edit' post.id %}" class="btn btn-sm btn-outline-secondary">Изменить</a>
+                        <a href="{% url 'post_delete' post.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция комментариев -->
+        <h4 class="mt-4 mb-3">Комментарии ({{ comments|length }})</h4>
+        {% for comment in comments %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <strong>{{ comment.author.username }}</strong>
+                    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                <p class="mt-2 mb-1">{{ comment.content }}</p>
+                {% if user == comment.author %}
+                <div>
+                    <a href="{% url 'comment_edit' comment.id %}" class="btn btn-sm btn-outline-secondary">Изменить</a>
+                    <a href="{% url 'comment_delete' comment.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Комментариев пока нет.</p>
+        {% endfor %}
+
+        <!-- Форма добавления комментария -->
+        {% if user.is_authenticated %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5>Добавить комментарий</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.content }}
+                    <button type="submit" class="btn btn-primary mt-2">Отправить</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить комментарий.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

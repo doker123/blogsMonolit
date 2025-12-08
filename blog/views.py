@@ -32,7 +32,7 @@ def home(request):
 # === Регистрация ===
 def register(request):
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
+        form = UserRegisterForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -116,12 +116,13 @@ def post_create(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            messages.success(request, 'Пост создан!')
-            return redirect('home')
+            return redirect('post_detail', post_id=post.id)  # ← здесь post.id есть
     else:
         form = PostForm()
-    return render(request, 'blog/post_form.html', {'form': form, 'title': 'Создать пост'})
-
+    return render(request, 'blog/post_form.html', {
+        'form': form,
+        'title': 'Создать пост',
+    })
 
 @login_required
 def post_edit(request, post_id):
@@ -134,8 +135,13 @@ def post_edit(request, post_id):
             return redirect('post_detail', post_id=post.id)
     else:
         form = PostForm(instance=post)
-    return render(request, 'blog/post_form.html', {'form': form, 'title': 'Редактировать пост'})
 
+
+    return render(request, 'blog/post_form.html', {
+        'form': form,
+        'title': 'Редактировать пост',
+        'post': post
+    })
 
 @login_required
 def post_delete(request, post_id):
